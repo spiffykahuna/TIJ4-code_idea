@@ -1,0 +1,34 @@
+1: package io.exercises;
+2: 
+3: import io.BufferedInputFile;
+4: 
+5: import java.io.*;
+6: 
+7: /**
+8:  * Created by IntelliJ IDEA.
+9:  * User: deko
+10:  * Date: 2012-06-15
+11:  * Time: 7:21 PM
+12:  */
+13: public class Exercise13 {
+14:     static String file = "./io/exercises/Exercise13.out";
+15: 
+16:     public static void main(String[] args)
+17:             throws IOException {
+18:         BufferedReader in = new BufferedReader(
+19:                 new StringReader(
+20:                         BufferedInputFile.read("./io/exercises/Exercise13.java")));
+21: 
+22:         LineNumberReader lineReader = new LineNumberReader(in);
+23: 
+24:         PrintWriter out = new PrintWriter(
+25:                 new BufferedWriter(new FileWriter(file)));
+26: 
+27:         String s;
+28:         while((s = lineReader.readLine()) != null )
+29:             out.println((lineReader.getLineNumber()) + ": " + s);
+30:         out.close();
+31:         // Show the stored file:
+32:         System.out.println(BufferedInputFile.read(file));
+33:     }
+34: }

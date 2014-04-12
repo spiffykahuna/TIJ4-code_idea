@@ -1,0 +1,88 @@
+package io.exercises;
+
+import java.io.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.TreeSet;
+
+/**
+ * Created by IntelliJ IDEA.
+ * User: deko
+ * Date: 2012-06-16
+ * Time: 1:00 PM
+ */
+public class Exercise18 extends ArrayList<String> {
+    static String fileName = "./io/exercises/Exercise18.java";
+    static String outFile = "./io/exercises/Exercise18.out";
+    static String outFile2 = "./io/exercises/Exercise18_2.out";
+    // Read a file as a single string:
+    public static String read(String fileName) throws IOException{
+        StringBuilder sb = new StringBuilder();
+
+        BufferedReader in= new BufferedReader(new FileReader(
+                new File(fileName).getAbsoluteFile()));
+        try {
+            String s;
+            while((s = in.readLine()) != null) {
+                sb.append(s);
+                sb.append("\n");
+            }
+        } finally {
+            in.close();
+        }
+        return sb.toString();
+    }
+    // Write a single file in one method call:
+    public static void write(String fileName, String text) {
+        try {
+            PrintWriter out = new PrintWriter(
+                    new File(fileName).getAbsoluteFile());
+            try {
+                out.print(text);
+            } finally {
+                out.close();
+            }
+        } catch(IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+    // Read a file, split by any regular expression:
+    public Exercise18(String fileName, String splitter) throws IOException {
+        super(Arrays.asList(read(fileName).split(splitter)));
+        // Regular expression split() often leaves an empty
+        // String at the first position:
+        if(get(0).equals("")) remove(0);
+    }
+    // Normally read by lines:
+    public Exercise18(String fileName) throws IOException {
+        this(fileName, "\n");
+    }
+    public void write(String fileName) throws IOException {
+        PrintWriter out = new PrintWriter(
+                new File(fileName).getAbsoluteFile());
+        try {
+            for(String item : this)
+                out.println(item);
+        } finally {
+            out.close();
+        }
+    }
+    // Simple test:
+    public static void main(String[] args) {
+        try {
+            String file = read(fileName);
+            write(outFile, file);
+            Exercise18 text = new Exercise18(outFile);
+            text.write(outFile2);
+            // Break into unique sorted list of words:
+            TreeSet<String> words = new TreeSet<String>(
+                    new Exercise18(fileName, "\\W+"));
+            // Display the capitalized words:
+            System.out.println(words.subSet("A" , "a"));
+
+        } catch(IOException e) {
+            System.err.println("Caught " + e);
+            e.printStackTrace();
+        }
+    }
+}

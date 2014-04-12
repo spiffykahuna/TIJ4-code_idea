@@ -1,0 +1,55 @@
+Line 1: package io.exercises;
+Line 2: 
+Line 3: import net.mindview.util.TextFile;
+Line 4: 
+Line 5: import java.io.IOException;
+Line 6: import java.io.PrintWriter;
+Line 7: import java.util.List;
+Line 8: import java.util.ListIterator;
+Line 9: 
+Line 10: /**
+Line 11:  * Created by IntelliJ IDEA.
+Line 12:  * User: deko
+Line 13:  * Date: 2012-06-15
+Line 14:  * Time: 6:55 PM
+Line 15:  */
+Line 16: public class Exercise12 {
+Line 17:     public static void main(String[] args) {
+Line 18:         String filename =  "./io/exercises/Exercise12.java";
+Line 19: 
+Line 20:         try {
+Line 21:             if (args.length == 0) {
+Line 22:                 new Exercise7.ReverseFileReader(filename).readFile();
+Line 23:             }else{
+Line 24:                 for(String arg : args) {
+Line 25:                     System.out.println("Printing contents of the file: " + arg);
+Line 26:                     Exercise7.ReverseFileReader file = new Exercise7.ReverseFileReader(arg);
+Line 27:                     file.readFile();
+Line 28: 
+Line 29:                     List<String> reversedLines = file.getReversedLines();
+Line 30:                     ListIterator<String> lit = reversedLines.listIterator(reversedLines.size());
+Line 31: 
+Line 32:                     StringBuilder outText = new StringBuilder();
+Line 33:                     int i = 1;
+Line 34:                     while (lit.hasPrevious())
+Line 35:                         outText.append("Line " + (i++) + ": " + lit.previous());
+Line 36: 
+Line 37:                     PrintWriter out = new PrintWriter("./io/exercises/Exercise12.out");
+Line 38:                     out.write(outText.toString());
+Line 39:                     out.close();
+Line 40: 
+Line 41:                     System.out.println("End of file" + arg);
+Line 42: 
+Line 43:                     System.out.println("Contents of resultFile: \n\n");
+Line 44:                     for(String line: new TextFile("./io/exercises/Exercise12.out")) {
+Line 45:                         System.out.println(line);
+Line 46:                     };
+Line 47: 
+Line 48:                 }
+Line 49:             }
+Line 50:         }catch (IOException e) {
+Line 51:             e.printStackTrace();
+Line 52:         }
+Line 53: 
+Line 54:     }
+Line 55: }

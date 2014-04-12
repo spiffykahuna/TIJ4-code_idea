@@ -1,0 +1,52 @@
+1: package io.exercises;
+2: 
+3: import io.BufferedInputFile;
+4: 
+5: import java.io.*;
+6: 
+7: /**
+8:  * Created by IntelliJ IDEA.
+9:  * User: deko
+10:  * Date: 2012-06-15
+11:  * Time: 7:32 PM
+12:  */
+13: public class Exercise14 {
+14:     static String file = "./io/exercises/Exercise14_1.out";
+15:     static String file2 = "./io/exercises/Exercise14_2.out";
+16:     static String inputFile = "./io/exercises/Exercise14.java";
+17:     public static void main(String[] args) throws IOException {
+18: 
+19:         BufferedReader in = new BufferedReader(
+20:                 new StringReader(
+21:                         BufferedInputFile.read(inputFile)));
+22:         // Buffered writer:
+23:         PrintWriter out = new PrintWriter(
+24:                 new BufferedWriter(new FileWriter(file)));
+25: 
+26: 
+27: 
+28: 
+29:         BufferedReader in2 = new BufferedReader(
+30:                 new StringReader(
+31:                         BufferedInputFile.read(inputFile)));
+32:         // Unbuffered writer:
+33:         PrintWriter out2 = new PrintWriter(new FileWriter(file2));
+34: 
+35: 
+36:         System.out.println("Buffered write:   " + getWriteDuration(in, out) + " nanoseconds");
+37:         System.out.println("Unbuffered write: " + getWriteDuration(in2, out2) + " nanoseconds");
+38:         // Show the stored files:
+39:         System.out.println("file: \n" + BufferedInputFile.read(file));
+40:         System.out.println("file2: \n" + BufferedInputFile.read(file2));
+41:     }
+42: 
+43:     public static long getWriteDuration(BufferedReader in, PrintWriter out) throws IOException {
+44:         int lineCount = 1;
+45:         String s;
+46:         long start = System.nanoTime();
+47:         while((s = in.readLine()) != null )
+48:             out.println(lineCount++ + ": " + s);
+49:         out.close();
+50:         return System.nanoTime() - start;
+51:     }
+52: }
