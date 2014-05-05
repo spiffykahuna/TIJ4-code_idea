@@ -6,19 +6,13 @@ import java.util.*;
 
 
 import net.mindview.util.*;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.Computer;
 import org.junit.runner.JUnitCore;
 import org.junit.runner.Result;
 import org.junit.runner.RunWith;
 import org.junit.runner.notification.Failure;
-import org.junit.runners.JUnit4;
-import org.junit.runners.Parameterized;
 import org.junit.runners.Suite;
 
 import static java.math.BigDecimal.ZERO;
-import static java.util.Arrays.asList;
 import static net.mindview.util.Print.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -40,7 +34,7 @@ import static org.junit.Assert.assertTrue;
 
 interface VendingItem { String name(); }
 
-abstract class AbstractVendingItem {
+abstract class AbstractVendingItem implements VendingItem{
     protected String name;
 
     public AbstractVendingItem(String name) {
@@ -50,18 +44,18 @@ abstract class AbstractVendingItem {
     public String name() { return name; }
 }
 
-class MonetaryUnit extends AbstractVendingItem implements VendingItem {
+class MonetaryUnit extends AbstractVendingItem {
     private BigDecimal amount = ZERO;
 
-    MonetaryUnit(String name, BigDecimal amount) {
-        super(name);
+    MonetaryUnit(BigDecimal amount) {
+        super("Money");
         this.amount = amount;
     }
 
     public BigDecimal amount() { return amount; }
 }
 
-class VendedItem extends AbstractVendingItem implements VendingItem {
+class VendedItem extends AbstractVendingItem {
 
     private BigDecimal price = ZERO;
 
@@ -73,9 +67,22 @@ class VendedItem extends AbstractVendingItem implements VendingItem {
     public BigDecimal price() { return price; }
 }
 
-class VendingEvent extends AbstractVendingItem implements VendingItem {
+class VendingEvent extends AbstractVendingItem {
     VendingEvent(String name) {
         super(name);
+    }
+}
+
+
+class InsufficientFoundsException extends RuntimeException {
+    public InsufficientFoundsException(String msg) {
+        super(msg);
+    }
+}
+
+class InvalidVendingItemException extends RuntimeException {
+    public InvalidVendingItemException(String msg) {
+        super(msg);
     }
 }
 
@@ -87,8 +94,17 @@ class VendingMachine11 {
 
     private static VendedItem selection = null;
 
-    List<MonetaryUnit> monetaryUnits;
-    List<VendedItem> vendingItemsAvailable;
+    static List<VendedItem> vendingItemsAvailable;
+
+    public static void init() {
+        if(null != vendingItemsAvailable)
+            vendingItemsAvailable.clear();
+        else {
+            vendingItemsAvailable = new ArrayList<VendedItem>();
+        }
+        amount = ZERO;
+        selection = null;
+    }
 
 
     enum StateDuration {TRANSIENT;} // Tagging enum
@@ -112,8 +128,12 @@ class VendingMachine11 {
                 }
                 if (VendedItem.class.isInstance(in)) {
                     selection = (VendedItem) in;
-                    if (amount.compareTo(selection.price()) == -1 )
-                        print("Insufficient money for " + selection.name());
+                    if (amount.compareTo(selection.price()) == -1 ) {
+                        throw new InsufficientFoundsException("Insufficient money for " + selection.name());
+                    } else if(!isValidVendingItem(selection)) {
+                        throw new InvalidVendingItemException("Invalid vending item: " + selection
+                                + " !  Should be one of " + vendingItemsAvailable);
+                    }
                     else state = DISPENSING;
                 }
                 if (VendingEvent.class.isInstance(in)) {
@@ -170,46 +190,51 @@ class VendingMachine11 {
         }
 
     }
-    void input(VendingItem item) {
-
+    static void input(VendingItem item) {
+        state.next(item);
+        while (state.isTransient)
+            state.next();
+        state.output();
     }
 
-    void input(Collection<VendingItem> items) {
+    static void input(Collection<VendingItem> items) {
         for(VendingItem item: items) {
             input(item);
         }
     }
 
-    BigDecimal getAmount() {return amount;}
+    static BigDecimal getClientBalance() {return amount;}
 
 
-    State currentState() { return state;}
+    static State currentState() { return state;}
 
-    public void configure(Map<String, BigDecimal> machineConfig) {
-        if(null == machineConfig) throw new IllegalArgumentException("Config is null");
-        if(machineConfig.isEmpty()) throw new IllegalArgumentException("Empty config");
+    public static void loadVendingItems(Collection<VendedItem> vendedItems) {
+        if(null == vendedItems) throw new IllegalArgumentException("Vending items collection is null");
+        if(vendedItems.isEmpty()) throw new IllegalArgumentException("Empty vending items collection");
 
-        monetaryUnits = new ArrayList<MonetaryUnit>();
-        vendingItemsAvailable = new ArrayList<VendedItem>();
+        vendingItemsAvailable = new ArrayList<VendedItem>(vendedItems.size());
 
-        for(Map.Entry<String,BigDecimal> param: machineConfig.entrySet()) {
-            String key = param.getKey();
-            if(key.startsWith("monetaryUnit")) {
-                String unitName = parseConfigKey(key);
-                monetaryUnits.add(new MonetaryUnit(unitName.toUpperCase(), param.getValue()));
+        for(VendedItem vendedItem: vendedItems) {
+            if(null == vendedItem.price() || vendedItem.price().compareTo(ZERO) < 0) {
+                vendingItemsAvailable = new ArrayList<VendedItem>();
+                throw new IllegalArgumentException(
+                        String.format(
+                                "Wrong vended item price: item=%s price=%s",
+                                vendedItem.name(), vendedItem.price())
+                );
             }
 
-            if(key.startsWith("vendedItem")) {
-                String itemName = parseConfigKey(key);
-                vendingItemsAvailable.add(new VendedItem(itemName, param.getValue()));
+            vendingItemsAvailable.add(vendedItem);
+        }
+    }
+
+    private static  boolean isValidVendingItem(VendedItem item) {
+        for(VendedItem loadedItem: vendingItemsAvailable) {
+            if(loadedItem.name().equalsIgnoreCase(item.name())){
+                return true;
             }
         }
-
-        if(monetaryUnits.isEmpty())
-            throw new IllegalArgumentException("No monetary units specified in config");
-
-        if(vendingItemsAvailable.isEmpty())
-            throw new IllegalArgumentException("No vending items specified");
+        return false;
     }
 
     private String parseConfigKey(String key) {
@@ -277,7 +302,7 @@ class FileInputGenerator11 implements Generator<VendingItem> {
             int x = list.indexOf(s);
             if (m < x && x < se) {
                 String[] sa = s.split("\\(|\\)");
-                vIn = new MonetaryUnit(sa[0], new BigDecimal(sa[1]));
+                vIn = new MonetaryUnit(new BigDecimal(sa[1]));
                 vendList.add(vIn);
             } else if (se < x && x < e) {
                 String[] sa = s.split("\\(|\\)");

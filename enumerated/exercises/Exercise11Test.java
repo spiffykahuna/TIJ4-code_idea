@@ -4,81 +4,95 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.math.BigDecimal;
-import java.util.HashMap;
+import java.util.ArrayList;
 
+
+import static enumerated.exercises.VendingMachine11.State.*;
+import static java.math.BigDecimal.ONE;
+import static java.util.Arrays.asList;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 public class Exercise11Test {
-    VendingMachine11 machine;
-    HashMap<String, BigDecimal> config;
+
 
     @Before
     public void setUp() {
-        machine = new VendingMachine11();
-        config = new HashMap<String, BigDecimal>();
+        VendingMachine11.init();
 
-        machine.configure(new HashMap<String, BigDecimal>() {{
-            put("monetaryUnit.NICKEL", BigDecimal.valueOf(5));
-            put("monetaryUnit.DIME", BigDecimal.valueOf(10));
-            put("monetaryUnit.QUARTER", BigDecimal.valueOf(25));
-            put("monetaryUnit.DOLLAR", BigDecimal.valueOf(100));
-
-            put("vendedItem.Soda", BigDecimal.valueOf(100));
-            put("vendedItem.Juice", BigDecimal.valueOf(125));
-            put("vendedItem.HotChocolate", BigDecimal.valueOf(100));
-            put("vendedItem.Coffee", BigDecimal.valueOf(45));
-            put("vendedItem.CandyBar", BigDecimal.valueOf(90));
-
+        VendingMachine11.loadVendingItems(new ArrayList<VendedItem>() {{
+            add(new VendedItem("Soda", BigDecimal.valueOf(1)));
+            add(new VendedItem("Juice", BigDecimal.valueOf(1.25)));
+            add(new VendedItem("HotChocolate", BigDecimal.valueOf(1)));
+            add(new VendedItem("Coffee", BigDecimal.valueOf(0.45)));
+            add(new VendedItem("CandyBar", BigDecimal.valueOf(0.90)));
         }});
     }
 
     @Test
     public  void validScenario(){
-        VendingItem[] inputItems = new VendingItem[]{
+        VendingMachine11.input(new MonetaryUnit(BigDecimal.valueOf(2)));
+        assertEquals(ADDING_MONEY, VendingMachine11.currentState());
+        assertEquals(BigDecimal.valueOf(2), VendingMachine11.getClientBalance());
 
-        };
-//        machine.input( Arrays.<VendingItem>asList(new MonetaryUnit("hehe", 2)));
+
+        VendingMachine11.input(new VendedItem("Soda", BigDecimal.valueOf(2)));
+        assertEquals(RESTING, VendingMachine11.currentState());
+        assertEquals(BigDecimal.ZERO, VendingMachine11.getClientBalance());
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void configurationFailsIfConfigIsEmpty() {
-        assertTrue(config.isEmpty());
-        machine.configure(config);
+        VendingMachine11.loadVendingItems(new ArrayList<VendedItem>());
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void configurationFailsIfConfigIsNull() {
-        machine.configure(null);
+        VendingMachine11.loadVendingItems(null);
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void configurationFailsIfConfigIsNoMonetaryItemsProvided() {
-        config.put("event.STOP", BigDecimal.valueOf(Double.MIN_VALUE));
-        machine.configure(config);
+    public void thatLoadingFailsIfVendedItemsHaveNegativePrice() {
+        VendingMachine11.loadVendingItems(asList(
+                new VendedItem("SimpleCoffee", BigDecimal.valueOf(1)),
+                new VendedItem("GiftToClient", BigDecimal.valueOf(-Double.MIN_VALUE)),
+                new VendedItem("CreditForever", BigDecimal.valueOf(Double.MAX_VALUE))
+        ));
     }
 
     @Test
-    public void configurationContainsValidMonetaryUnits() {
-        machine.configure(new HashMap<String, BigDecimal>() {{
-            put("monetaryUnit.NICKEL", BigDecimal.valueOf(5));
-            put("monetaryUnit.DIME", BigDecimal.valueOf(10));
-            put("monetaryUnit.QUARTER", BigDecimal.valueOf(25));
-            put("monetaryUnit.DOLLAR", BigDecimal.valueOf(100));
+    public void thatProperAmountOfItemsWasLoaded() {
 
-            put("vendedItem.Soda", BigDecimal.valueOf(100));
+        assertTrue(VendingMachine11.vendingItemsAvailable.size() > 1);
+
+        VendingMachine11.loadVendingItems(new ArrayList<VendedItem>() {{
+            add(new VendedItem("Soda", BigDecimal.valueOf(1.00)));
+            add(new VendedItem("Juice", BigDecimal.valueOf(1.25)));
+            add(new VendedItem("HotChocolate", BigDecimal.valueOf(1.00)));
+            add(new VendedItem("Coffee", BigDecimal.valueOf(0.45)));
         }});
 
-        assertEquals(4, machine.monetaryUnits.size());
+        assertEquals(4, VendingMachine11.vendingItemsAvailable.size());
     }
 
+    @Test(expected = InsufficientFoundsException.class)
+    public void thatMachineThrowsExceptionWhenThereIsInsufficientFoundsToBySmth() throws Exception {
+        VendingMachine11.input(new MonetaryUnit(BigDecimal.valueOf(1)));
+        assertEquals(ADDING_MONEY, VendingMachine11.currentState());
+        assertEquals(BigDecimal.valueOf(1), VendingMachine11.getClientBalance());
 
-    @Test(expected = IllegalArgumentException.class)
-    public void configurationFailsIfConfigIsNoVendedItemsProvided() throws Exception {
-        config.put("monetaryUnit.DOLLAR", BigDecimal.valueOf(100));
-        config.put("event.STOP", BigDecimal.valueOf(45));
 
-        machine.configure(config);
+        VendingMachine11.input(new VendedItem("Soda", BigDecimal.valueOf(2)));
     }
 
+    @Test(expected = InvalidVendingItemException.class)
+    public void thatOnlyRegisteredItemsAreAllowed() throws Exception {
+        VendingMachine11.input(new MonetaryUnit(ONE));
+        assertEquals(ADDING_MONEY, VendingMachine11.currentState());
+        assertEquals(ONE, VendingMachine11.getClientBalance());
+
+
+        VendingMachine11.input(new VendedItem("SomeUnknownVendingItem", ONE));
+    }
 }
