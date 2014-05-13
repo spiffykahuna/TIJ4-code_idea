@@ -12,7 +12,7 @@ import java.util.List;
 
 public class Exercise1 {
     public static void main(String[] args) throws Exception {
-        TableCreator1.main(new String[]{ Worker.class.getCanonicalName() });
+        TableCreator1.main(new String[]{ Worker1.class.getCanonicalName() });
     }
 }
 
@@ -67,8 +67,8 @@ class TableCreator1 {
                             getConstraints(sString.constraints()));
                 }
 
-                if(anns[0] instanceof SQLNumber) {
-                    SQLNumber sNumber = (SQLNumber) anns[0];
+                if(anns[0] instanceof SQLNumber1) {
+                    SQLNumber1 sNumber = (SQLNumber1) anns[0];
 
                     if (sNumber.name().isEmpty())
                         columnName = field.getName().toUpperCase();

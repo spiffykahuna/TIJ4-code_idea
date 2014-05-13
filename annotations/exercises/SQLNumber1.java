@@ -10,7 +10,7 @@ import java.lang.annotation.Target;
 
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface SQLNumber {
+public @interface SQLNumber1 {
     //    int value() default 5;
     int scale() default 5;
     int precision() default 0;
