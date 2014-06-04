@@ -1,17 +1,10 @@
 package annotations.exercises;
 
-import enumerated.exercises.Exercise11Test;
+
 import net.mindview.atunit.AtUnit;
 import net.mindview.atunit.Test;
-import org.junit.runner.JUnitCore;
-import org.junit.runner.Result;
-import org.junit.runner.RunWith;
-import org.junit.runner.notification.Failure;
-import org.junit.runners.Suite;
 
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 class Pojo {
