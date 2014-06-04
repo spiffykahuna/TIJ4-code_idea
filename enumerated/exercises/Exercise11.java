@@ -1,28 +1,18 @@
 package enumerated.exercises;
 
-import java.math.BigDecimal;
-import java.util.*;
-
-
-
-import net.mindview.util.*;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.Computer;
+import net.mindview.util.Generator;
+import net.mindview.util.TextFile;
 import org.junit.runner.JUnitCore;
 import org.junit.runner.Result;
 import org.junit.runner.RunWith;
 import org.junit.runner.notification.Failure;
-import org.junit.runners.JUnit4;
-import org.junit.runners.Parameterized;
 import org.junit.runners.Suite;
 
+import java.math.BigDecimal;
+import java.util.*;
+
 import static java.math.BigDecimal.ZERO;
-import static java.util.Arrays.asList;
-import static net.mindview.util.Print.*;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static net.mindview.util.Print.print;
 
 
 /** Files required for input, in same package:
@@ -37,7 +27,7 @@ import static org.junit.Assert.assertTrue;
  Money:Nickel(5),Dime(10),Quarter(25),Dollar(100);Selection:Soda(100),Juice(125),
  HotChocolate(100),Coffee(145),CandyBar(90);VendingEvent:AbortTransaction,Stop,
  **/
-
+// TODO finish here.
 interface VendingItem { String name(); }
 
 abstract class AbstractVendingItem {
@@ -94,6 +84,7 @@ class VendingMachine11 {
     enum StateDuration {TRANSIENT;} // Tagging enum
     enum State {
         RESTING {
+            @Override
             void next(VendingItem in) {
                 if (MonetaryUnit.class.isInstance(in)) {
                     amount = amount.add(((MonetaryUnit) in).amount());
@@ -106,6 +97,7 @@ class VendingMachine11 {
             }
         },
         ADDING_MONEY {
+            @Override
             void next(VendingItem in) {
                 if (MonetaryUnit.class.isInstance(in)) {
                     amount = amount.add(((MonetaryUnit) in).amount());
@@ -125,6 +117,7 @@ class VendingMachine11 {
             }
         },
         DISPENSING(StateDuration.TRANSIENT) {
+            @Override
             void next() {
                 print("here is your " + selection.name());
                 amount = amount.subtract(selection.price());
@@ -132,6 +125,7 @@ class VendingMachine11 {
             }
         },
         GIVING_CHANGE(StateDuration.TRANSIENT) {
+            @Override
             void next() {
                 if (amount.compareTo(ZERO) == 1) {
                     print("Your change: " + amount);
@@ -141,6 +135,7 @@ class VendingMachine11 {
             }
         },
         TERMINAL {
+            @Override
             void output() {
                 print("Halted");
             }
@@ -291,6 +286,7 @@ class FileInputGenerator11 implements Generator<VendingItem> {
         it = vendList.iterator();
     }
 
+    @Override
     public VendingItem next() {
         if (list.isEmpty()) return null;
         if (it.hasNext()) {

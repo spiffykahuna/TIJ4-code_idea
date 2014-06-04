@@ -21,7 +21,7 @@
       <!--<dependency org="org.liquibase" name="liquibase-core" rev="2.0+"/>-->
       <!--<dependency org="org.hibernate" name="hibernate-core" rev="3.6+"/>-->
       <!--<dependency org="javassist" name="javassist" rev="3.3"/>-->
-      <dependency org="javassist" name="javassist" rev="3.12.0.GA" />
+      <dependency org="javassist" name="javassist" rev="3.12+" />
 
       <!--<dependency org="org.springframework" name="spring-beans" rev="3.0+"/>-->
       <!--<dependency org="org.springframework" name="spring-web" rev="3.0+"/>-->
@@ -41,11 +41,11 @@
       <dependency org="xom" name="xom" rev="1.2.5" />
       <dependency org="swt" name="swt-linux-gtk" rev="3.0.1+" />
       <dependency org="org.apache.commons" name="commons-lang3" rev="3.1" />
-      <dependency org="org.eclipse.jdt.apt" name="core" rev="3.3.0-v20070607-1200" />
+      <dependency org="org.eclipse.jdt.apt" name="core" rev="3.3+" />
       <dependency org="org.eclipse.swt" name="jmx" rev="1.0.0+" />
 
-      <!--<dependency org="org.apache.ant" name="ant" rev="1.9.2" />-->
-      <dependency org="org.apache.ant" name="ant" rev="1.8.0" />
+      <dependency org="org.apache.ant" name="ant" rev="1.9.2" />
+      <!--<dependency org="org.apache.ant" name="ant" rev="1.7.1" />-->
 
 
 
