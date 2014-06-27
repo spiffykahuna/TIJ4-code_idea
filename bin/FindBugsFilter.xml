@@ -373,8 +373,8 @@
     </Match>
     <Match class="TellerManager">
         <BugCode name="RV"/>
-        <!--TellerManager.adjustTellerNumber() ignores return value of java.util.PriorityQueue.offer(Object)  At BankTellerSimulation.java:[line 127]-->
-        <!--TellerManager.reassignOneTeller() ignores return value of java.util.Queue.offer(Object)  At BankTellerSimulation.java:[line 150]-->
+        <!--ServerLoadRecorder.adjustTellerNumber() ignores return value of java.util.PriorityQueue.offer(Object)  At BankTellerSimulation.java:[line 127]-->
+        <!--ServerLoadRecorder.reassignOneTeller() ignores return value of java.util.Queue.offer(Object)  At BankTellerSimulation.java:[line 150]-->
     </Match>
     <Match class="TemperatureReading">
         <BugCode name="UrF"/>
