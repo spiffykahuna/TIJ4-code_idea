@@ -71,7 +71,7 @@ class Customer implements Runnable {
     print(this + "finished meal, leaving");
   }
   public String toString() {
-    return "Customer " + id + " ";
+    return "WebClient " + id + " ";
   }
 }
 
@@ -189,18 +189,18 @@ public class RestaurantWithQueues {
     exec.shutdownNow();
   }
 } /* Output: (Sample)
-WaitPerson 0 received SPRING_ROLLS delivering to Customer 1
-Customer 1 eating SPRING_ROLLS
-WaitPerson 3 received SPRING_ROLLS delivering to Customer 0
-Customer 0 eating SPRING_ROLLS
-WaitPerson 0 received BURRITO delivering to Customer 1
-Customer 1 eating BURRITO
-WaitPerson 3 received SPRING_ROLLS delivering to Customer 2
-Customer 2 eating SPRING_ROLLS
-WaitPerson 1 received SOUP delivering to Customer 3
-Customer 3 eating SOUP
-WaitPerson 3 received VINDALOO delivering to Customer 0
-Customer 0 eating VINDALOO
-WaitPerson 0 received FRUIT delivering to Customer 1
+WaitPerson 0 received SPRING_ROLLS delivering to WebClient 1
+WebClient 1 eating SPRING_ROLLS
+WaitPerson 3 received SPRING_ROLLS delivering to WebClient 0
+WebClient 0 eating SPRING_ROLLS
+WaitPerson 0 received BURRITO delivering to WebClient 1
+WebClient 1 eating BURRITO
+WaitPerson 3 received SPRING_ROLLS delivering to WebClient 2
+WebClient 2 eating SPRING_ROLLS
+WaitPerson 1 received SOUP delivering to WebClient 3
+WebClient 3 eating SOUP
+WaitPerson 3 received VINDALOO delivering to WebClient 0
+WebClient 0 eating VINDALOO
+WaitPerson 0 received FRUIT delivering to WebClient 1
 ...
 *///:~

@@ -44,9 +44,9 @@ class CustomerGenerator implements Runnable {
         customers.put(new Customer(rand.nextInt(1000)));
       }
     } catch(InterruptedException e) {
-      System.out.println("CustomerGenerator interrupted");
+      System.out.println("WebClientGenerator interrupted");
     }
-    System.out.println("CustomerGenerator terminating");
+    System.out.println("WebClientGenerator terminating");
   }
 }
 
@@ -84,7 +84,7 @@ class Teller implements Runnable, Comparable<Teller> {
     servingCustomerLine = true;
     notifyAll();
   }
-  public String toString() { return "Teller " + id + " "; }
+  public String toString() { return "WebServer " + id + " "; }
   public String shortString() { return "T" + id; }
   // Used by priority queue:
   public synchronized int compareTo(Teller other) {
@@ -162,7 +162,7 @@ class TellerManager implements Runnable {
     }
     System.out.println(this + "terminating");
   }
-  public String toString() { return "TellerManager "; }
+  public String toString() { return "ServerLoadRecorder "; }
 }
 
 public class BankTellerSimulation {
@@ -190,16 +190,16 @@ public class BankTellerSimulation {
 [861][258][140][322] { T0 T1 }
 [575][342][804][826][896][984] { T0 T1 T2 }
 [984][810][141][12][689][992][976][368][395][354] { T0 T1 T2 T3 }
-Teller 2 interrupted
-Teller 2 terminating
-Teller 1 interrupted
-Teller 1 terminating
-TellerManager interrupted
-TellerManager terminating
-Teller 3 interrupted
-Teller 3 terminating
-Teller 0 interrupted
-Teller 0 terminating
-CustomerGenerator interrupted
-CustomerGenerator terminating
+WebServer 2 interrupted
+WebServer 2 terminating
+WebServer 1 interrupted
+WebServer 1 terminating
+ServerLoadRecorder interrupted
+ServerLoadRecorder terminating
+WebServer 3 interrupted
+WebServer 3 terminating
+WebServer 0 interrupted
+WebServer 0 terminating
+WebClientGenerator interrupted
+WebClientGenerator terminating
 *///:~

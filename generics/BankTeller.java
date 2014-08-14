@@ -8,7 +8,7 @@ class Customer {
   private static long counter = 1;
   private final long id = counter++;
   private Customer() {}
-  public String toString() { return "Customer " + id; }
+  public String toString() { return "WebClient " + id; }
   // A method to produce Generator objects:
   public static Generator<Customer> generator() {
     return new Generator<Customer>() {
@@ -21,7 +21,7 @@ class Teller {
   private static long counter = 1;
   private final long id = counter++;
   private Teller() {}
-  public String toString() { return "Teller " + id; }
+  public String toString() { return "WebServer " + id; }
   // A single Generator object:
   public static Generator<Teller> generator =
     new Generator<Teller>() {
@@ -43,19 +43,19 @@ public class BankTeller {
       serve(tellers.get(rand.nextInt(tellers.size())), c);
   }	
 } /* Output:
-Teller 3 serves Customer 1
-Teller 2 serves Customer 2
-Teller 3 serves Customer 3
-Teller 1 serves Customer 4
-Teller 1 serves Customer 5
-Teller 3 serves Customer 6
-Teller 1 serves Customer 7
-Teller 2 serves Customer 8
-Teller 3 serves Customer 9
-Teller 3 serves Customer 10
-Teller 2 serves Customer 11
-Teller 4 serves Customer 12
-Teller 2 serves Customer 13
-Teller 1 serves Customer 14
-Teller 1 serves Customer 15
+WebServer 3 serves WebClient 1
+WebServer 2 serves WebClient 2
+WebServer 3 serves WebClient 3
+WebServer 1 serves WebClient 4
+WebServer 1 serves WebClient 5
+WebServer 3 serves WebClient 6
+WebServer 1 serves WebClient 7
+WebServer 2 serves WebClient 8
+WebServer 3 serves WebClient 9
+WebServer 3 serves WebClient 10
+WebServer 2 serves WebClient 11
+WebServer 4 serves WebClient 12
+WebServer 2 serves WebClient 13
+WebServer 1 serves WebClient 14
+WebServer 1 serves WebClient 15
 *///:~
