@@ -18,28 +18,31 @@ public class Exercise35 {
         }
     }
 
-    // Teach the customer line to display itself:
-    static class WebQueue extends LinkedBlockingQueue<WebClient> {
+    static class WebQueue extends ArrayBlockingQueue<WebClient> {
+        public WebQueue(int capacity) {
+            super(capacity);
+        }
+
         public String toString() {
             if(this.size() == 0)
                 return "[Empty]";
             StringBuilder result = new StringBuilder();
             for(WebClient webClient : this)
-                result.append(webClient);
+                result.append(webClient.toString());
             return result.toString();
         }
     }
 
     // Randomly add webQueue to a queue:
     static class WebClientGenerator implements Runnable {
-        private final int maxHitRatePerSecond;
+        private final int maxClientQueueSize;
         private final int maxServiceTimeMs;
 
         private WebQueue webClients;
         private static Random rand = new Random(47);
-        public WebClientGenerator(WebQueue cq, int maxHitRatePerSecond, int maxServiceTimeMs) {
+        public WebClientGenerator(WebQueue cq, int maxClientQueueSize, int maxServiceTimeMs) {
             webClients = cq;
-            this.maxHitRatePerSecond = maxHitRatePerSecond;
+            this.maxClientQueueSize = maxClientQueueSize;
             this.maxServiceTimeMs = maxServiceTimeMs;
         }
 
@@ -47,9 +50,10 @@ public class Exercise35 {
         public void run() {
             try {
                 while(!Thread.interrupted()) {
-                    TimeUnit.MILLISECONDS.sleep(rand.nextInt(1000));
-                    for (int i = 0; i < rand.nextInt(maxHitRatePerSecond); i++) {
-                        webClients.put(new WebClient(rand.nextInt(maxServiceTimeMs)));
+                    TimeUnit.MILLISECONDS.sleep(rand.nextInt(2000));
+
+                    while(webClients.size() < maxClientQueueSize) {
+                        webClients.offer(new WebClient(rand.nextInt(maxServiceTimeMs)));
                     }
                 }
             } catch(InterruptedException e) {
@@ -72,12 +76,9 @@ public class Exercise35 {
             try {
                 while(!Thread.interrupted()) {
                     WebClient webClient = webQueue.take();
-                    TimeUnit.MILLISECONDS.sleep(
-                            webClient.getServiceTime());
+                    TimeUnit.MILLISECONDS.sleep(webClient.getServiceTime());
                     synchronized(this) {
                         webClientsServed++;
-//                        while(!servingCustomerLine)
-//                            wait();
                     }
                 }
             } catch(InterruptedException e) {
@@ -103,11 +104,12 @@ public class Exercise35 {
         private ExecutorService exec;
         private WebQueue webClients;
 
-        private List<WebServer> workingWebServers =
-                new ArrayList<WebServer>();
+        private PriorityQueue<WebServer> workingWebServers = new PriorityQueue<WebServer>();
 
-        //private long secondCounter;
-        private long totalProcessed;
+        private long secondCounter;
+        private long maxServiceRate;
+
+        private List<Long> serviceRateStats = new ArrayList<Long>();
 
         public ServerLoadRecorder(ExecutorService e,
                                   WebQueue webClients, int serverCount) {
@@ -124,39 +126,63 @@ public class Exercise35 {
         @Override
         public void run() {
             try {
+                secondCounter = 1;
                 while(!Thread.interrupted()) {
                     TimeUnit.SECONDS.sleep(1);
-                    long totalHits = 0;
-                    for(WebServer webServer : workingWebServers)
-                        totalHits += webServer.getWebClientsServed();
 
-                    System.out.format("Total servers: %d, Load per second: %d Clients waiting: %d%n", workingWebServers.size(), (totalHits - totalProcessed), webClients.size());
-                    totalProcessed = totalHits;
+                    long totalClientsServed = 0;
+                    for(WebServer webServer : workingWebServers)
+                        totalClientsServed += webServer.getWebClientsServed();
+
+                    long currentServiceRate = totalClientsServed/secondCounter;
+                    serviceRateStats.add(currentServiceRate);
+
+                    if(currentServiceRate > maxServiceRate)
+                        maxServiceRate = currentServiceRate;
+
+                    StringBuilder sb = new StringBuilder()
+                        .append("Total servers: ").append(workingWebServers.size()).append("\t")
+                        .append("Load per second: ").append(currentServiceRate).append("\t")
+                        .append("Avg rate: ").append(getAverageLoad()).append("\t")
+                        .append("Max rate: ").append(maxServiceRate).append("\t")
+                        .append("Queue size: ").append(webClients.size()).append("\t")
+                        .append("Total clients served: ").append(totalClientsServed)
+                    ;
+                    System.out.println(sb.toString());
+
+                    secondCounter++;
                 }
             } catch(InterruptedException e) {
                 System.out.println(this + "interrupted");
             }
             System.out.println(this + "terminating");
         }
+
+        private long getAverageLoad() {
+            long sum = 0;
+            for(Long totalHitsPerSecond: serviceRateStats) {
+                sum += totalHitsPerSecond;
+            }
+            return sum/serviceRateStats.size();
+        }
+
         public String toString() { return "ServerLoadRecorder "; }
     }
 
     static class WebServerSimulation {
-        static final int SERVER_COUNT = 4;
+
+        static final int SERVER_COUNT = 10;
+        static final int MAX_CLIENT_QUEUE_SIZE = 10000;
+        static final int MAX_SERVICE_TIME_MS = 50;
 
         public static void main(String[] args) throws Exception {
             ExecutorService exec = Executors.newCachedThreadPool();
-            // If line is too long, webQueue will leave:
-            WebQueue webQueue = new WebQueue();
 
-            int maxHitRatePerSecond = 10000;
-            int maxServiceTimeMs = 1;
+            WebQueue webQueue = new WebQueue(MAX_CLIENT_QUEUE_SIZE);
 
+            exec.execute(new WebClientGenerator(webQueue, MAX_CLIENT_QUEUE_SIZE, MAX_SERVICE_TIME_MS));
+            exec.execute(new ServerLoadRecorder(exec, webQueue, SERVER_COUNT));
 
-            exec.execute(new WebClientGenerator(webQueue, maxHitRatePerSecond, maxServiceTimeMs));
-            // Manager will add and remove tellers as necessary:
-            exec.execute(new ServerLoadRecorder(
-                    exec, webQueue, SERVER_COUNT));
             if(args.length > 0) // Optional argument
                 TimeUnit.SECONDS.sleep(new Integer(args[0]));
             else {
