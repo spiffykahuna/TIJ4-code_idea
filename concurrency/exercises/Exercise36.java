@@ -393,7 +393,6 @@ public class Exercise36 {
                 Table table = orderTicket.getTable();
                 while(orderTicket.filledOrders.size() > 0) {
                     Plate plate = orderTicket.filledOrders.take();
-                    boolean customerFound = false;
 
                     if(!table.hasCustomer(plate.getOrder().getCustomer()))
                         throw new IllegalStateException(table + " has no " + plate.getOrder().getCustomer());
