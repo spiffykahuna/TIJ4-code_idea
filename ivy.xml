@@ -48,7 +48,10 @@
       <!--<dependency org="org.apache.ant" name="ant" rev="1.7.1" />-->
 
 
+      <dependency org="org.openjdk.jmh" name="jmh-core" rev="1.5.2" />
+      <dependency org="org.openjdk.jmh" name="jmh-generator-annprocess" rev="1.5.2" />
 
+      <dependency org="org.codehaus.mojo" name="webstart-jnlp-servlet" rev="1.0-beta-6" />
 
   </dependencies>
 </ivy-module>
