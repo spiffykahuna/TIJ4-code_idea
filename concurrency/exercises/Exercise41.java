@@ -30,7 +30,7 @@ public class Exercise41 {
         public void handleMessage(final Message message, final MessageHandler notifier);
     }
 
-    public static class ActiveObject implements MessageHandler {
+    private static class ActiveObject implements MessageHandler {
         private ExecutorService ex =
                 Executors.newSingleThreadExecutor();
         private Random rand = new Random(47);
